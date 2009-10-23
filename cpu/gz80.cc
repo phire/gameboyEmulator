@@ -22,6 +22,7 @@ void gz80::attachBus(bus *bus) {
 char* rp[] = {"bc", "de", "hl", "sp"};
 char* r[] = {"b", "c", "d", "e", "h", "l", "(hl)", "a"};
 char* alu[] = {"add a,", "adc a,", "sub", "sbc a,", "and", "xor", "or", "cp"};
+char* cc[] = {"nz", "z", "nc", "c"};
 
 void gz80::decode(uint16_t addr) {
   uint8_t op = b->read(addr);
@@ -52,11 +53,11 @@ void gz80::decode(uint16_t addr) {
         printf("STOP");
 	break;
       case 3:
-        printf("jr %+i", b->read(addr+1));
+        printf("jr %+i", b->read(addr+1)); // FIXME: make signed.
 	++bytes;
 	break;
       default:
-        printf("jr cc[%i], %+i",  y - 4, b->read(addr+1));
+        printf("jr %s, %+i",  cc[y-4], b->read(addr+1));
 	++bytes;
 	break;
       }
@@ -150,11 +151,26 @@ void gz80::decode(uint16_t addr) {
     switch(z) {
     case 0:
       switch(y) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+        printf("ret %s", cc[y]);
+	break;
       case 4:
 	printf("ld 0xff[%02x], a", b->read(addr+1));
 	bytes++;
 	break;
-      default: goto unimplemented;
+      case 5:
+        printf("add sp, %+i", b->read(addr+1)); //FIXME: make signed
+	bytes++;
+	break;
+      case 6:
+        printf("ld a, 0xff[%02x]", b->read(addr+1));
+        break;
+      case 7:
+        printf("ld hl, (sp%+i)", b->read(addr+1));  //FIXME: make signed
+        break;
       }
       break;
     case 3:
@@ -174,6 +190,12 @@ void gz80::decode(uint16_t addr) {
         break;
       default: goto unimplemented;
       }
+      break;
+    case 6:
+      printf("%s %i", alu[y], b->read(addr+2));
+      break;
+    case 7:
+      printf("rst 0x%02x", y*8);
       break;
     default: goto unimplemented;
     }
