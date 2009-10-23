@@ -174,7 +174,7 @@ void gz80::decode(uint16_t addr) {
         break;
       }
       break;
-    case 2:
+    case 1:
       if(q == 0) {
         printf("pop %s", rp2[p]);
       } else {
