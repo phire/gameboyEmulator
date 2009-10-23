@@ -20,6 +20,7 @@ void gz80::attachBus(bus *bus) {
 
 
 char* rp[] = {"bc", "de", "hl", "sp"};
+char* rp2[] = {"bc", "de", "hl", "af"};
 char* r[] = {"b", "c", "d", "e", "h", "l", "(hl)", "a"};
 char* alu[] = {"add a,", "adc a,", "sub", "sbc a,", "and", "xor", "or", "cp"};
 char* cc[] = {"nz", "z", "nc", "c"};
@@ -173,6 +174,13 @@ void gz80::decode(uint16_t addr) {
         break;
       }
       break;
+    case 2:
+      if(q == 0) {
+        printf("pop %s", rp2[p]);
+      } else {
+        goto unimplemented;
+      }
+      break;
     case 3:
       switch(y) {
       case 0:
@@ -184,6 +192,9 @@ void gz80::decode(uint16_t addr) {
     break;
     case 5:
       switch (y) {
+      case 0:
+        printf("push %s", rp2[p]);
+	break;
       case 1:
         printf("call 0x%02x%02x",  b->read(addr+2), b->read(addr+1));
         bytes = 3;
