@@ -69,6 +69,32 @@ void gz80::decode(uint16_t addr) {
         printf("add hl, %s", rp[p]);
       }
       break;
+    case 2:
+      printf("ld ");
+      if(q) printf("a, ");
+      switch(p) {
+        case 0:
+	  printf("(BC)");
+	  break;
+	case 1:
+	  printf("(DE)");
+	  break;
+	case 2:
+	  printf("(HL+)");
+	  break;
+	case 3:
+	  printf("(HL-)");
+	  break;
+      }
+      if (!q) printf(", a");
+      break;
+    case 3:
+      if(q == 0) {
+        printf("inc %s", rp[p]);
+      } else {
+        printf("dec %s", rp[p]);
+      }
+      break;
     case 4:
       printf("inc %s", r[y]);
       break;
@@ -151,8 +177,7 @@ void gz80::decode(uint16_t addr) {
       break;
     default: goto unimplemented;
     }
-    break;      
-  default: goto unimplemented;
+    break;
   }
   printf("\n");
   return;
