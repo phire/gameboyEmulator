@@ -21,6 +21,8 @@ void gz80::attachBus(bus *bus) {
 
 char* rp[] = {"bc", "de", "hl", "sp"};
 char* r[] = {"b", "c", "d", "e", "h", "l", "(hl)", "a"};
+char* alu[] = {"add a,", "adc a,", "sub", "sbc a,", "and", "xor", "or", "cp"};
+
 void gz80::decode(uint16_t addr) {
   uint8_t op = b->read(addr);
 
@@ -67,47 +69,90 @@ void gz80::decode(uint16_t addr) {
         printf("add hl, %s", rp[p]);
       }
       break;
+    case 4:
+      printf("inc %s", r[y]);
+      break;
+    case 5:
+      printf("dec %s", r[y]);
+      break;
     case 6:
       printf("ld %s, 0x%02x", r[y], b->read(addr+1));
       bytes++;
       break;
+    case 7:
+      switch (y) {
+      case 0:
+        printf("rlca");
+        break;
+      case 1:
+        printf("rrca");
+        break;
+      case 2:
+        printf("rla");
+        break;
+      case 3:
+        printf("rra");
+        break;
+      case 4:
+        printf("dda");
+        break;
+      case 5:
+        printf("cpl");
+        break;
+      case 6:
+        printf("scf");
+        break;
+      case 7:
+        printf("ccf");
+        break;
+      }
     default:
       goto unimplemented;
     }
     break;
-    case 3:
-      switch(z) {
-      case 0:
-        switch(y) {
-	case 4:
-	  printf("ld 0xff[%02x], a", b->read(addr+1));
-	  bytes++;
-	  break;
-	default: goto unimplemented;
-	}
-	break;
-      case 3:
-        switch(y) {
-        case 0:
-          printf("jp 0x%02x%02x", b->read(addr+2), b->read(addr+1));
-  	  bytes = 3;
-	  break;
-        default: goto unimplemented;
-        }
-      break;
-      case 5: 
-        switch (y) {
-	case 1:
-	  printf("call 0x%02x%02x",  b->read(addr+2), b->read(addr+1));
-	  bytes = 3;
-	  break;
-	default: goto unimplemented;
-	}
+  case 1:
+    if(y == 6 && z == 6) {
+      printf("halt");
+    } else {
+      printf("ld %s, %s", r[y], r[z]);
+    }
+    break;
+  case 2:
+    printf("%s %s", alu[y], r[z]);
+    break;
+  case 3:
+    switch(z) {
+    case 0:
+      switch(y) {
+      case 4:
+	printf("ld 0xff[%02x], a", b->read(addr+1));
+	bytes++;
 	break;
       default: goto unimplemented;
       }
+      break;
+    case 3:
+      switch(y) {
+      case 0:
+        printf("jp 0x%02x%02x", b->read(addr+2), b->read(addr+1));
+        bytes = 3;
+        break;
+      default: goto unimplemented;
+      }
     break;
+    case 5:
+      switch (y) {
+      case 1:
+        printf("call 0x%02x%02x",  b->read(addr+2), b->read(addr+1));
+        bytes = 3;
+        break;
+      default: goto unimplemented;
+      }
+      break;
     default: goto unimplemented;
+    }
+    break;      
+  default: goto unimplemented;
   }
   printf("\n");
   return;
