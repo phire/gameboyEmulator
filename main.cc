@@ -17,6 +17,9 @@ int main() {
   cpu->decodeOP(0x03);
   cpu->decodeOP(0x05);
   cpu->decodeOP(0x7c);
+  cpu->decodeOP(0x7e);
+  cpu->decodeOP(0x80);
+  cpu->decodeOP(0x82);
   return 0;
 }
 

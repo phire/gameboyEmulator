@@ -77,6 +77,15 @@ void gz80::decode(uint16_t addr) {
     break;
     case 3:
       switch(z) {
+      case 0:
+        switch(y) {
+	case 4:
+	  printf("ld 0xff[%02x], a", b->read(addr+1));
+	  bytes++;
+	  break;
+	default: goto unimplemented;
+	}
+	break;
       case 3:
         switch(y) {
         case 0:
@@ -86,6 +95,15 @@ void gz80::decode(uint16_t addr) {
         default: goto unimplemented;
         }
       break;
+      case 5: 
+        switch (y) {
+	case 1:
+	  printf("call 0x%02x%02x",  b->read(addr+2), b->read(addr+1));
+	  bytes = 3;
+	  break;
+	default: goto unimplemented;
+	}
+	break;
       default: goto unimplemented;
       }
     break;
