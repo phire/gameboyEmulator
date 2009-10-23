@@ -263,7 +263,7 @@
 </head><body>
 	<h1>DECODING Gameboy Z80 OPCODES</h1>
 	<h5>- of use to disassembler and emulator writers -</h5>
-	<h5>Revision 1</h5>
+	<h5>Revision 3 (gameboy)</h5>
 	<p>By Scott Mansell, Based on the orignal by Cristian Dinu. </p>
 	<hr>
 	<h2>CONTENTS</h2>
@@ -442,10 +442,10 @@ Z80's instruction matrix.</p>
 				</td>
 			</tr></tbody></table>
 			<table class="DissTable8">
-				<tbody><tr><th class="TableName" colspan="9">Table "cc"</th></tr>
-				<tr><th class="TableDesc" colspan="9">Conditions</th></tr>
-				<tr><td class="Left">Index</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-				<tr><td class="Left">Value</td><td>NZ</td><td>Z</td><td>NC</td><td>C</td><td>PO</td><td>PE</td><td>P</td><td>M</td></tr>
+				<tbody><tr><th class="TableName" colspan="5">Table "cc"</th></tr>
+				<tr><th class="TableDesc" colspan="5">Conditions</th></tr>
+				<tr><td class="Left">Index</td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+				<tr><td class="Left">Value</td><td>NZ</td><td>Z</td><td>NC</td><td>C</td></tr>
 			</tbody></table>
 			<table class="DissTable8">
 				<tbody><tr><th class="TableName" colspan="9">Table "alu"</th></tr>
@@ -663,12 +663,14 @@ Z80's instruction matrix.</p>
 	</tbody></table>
 	<hr>
 	<a name="ack"></a>
-	<h2>8. ACKNOWLEDGEMENTS</h2>
+	<h2>4. ACKNOWLEDGEMENTS</h2>
 	<p>The
-'algorithm' described herein was constructed by studying an
+original 'algorithm' described herein was constructed by studying an
 "instruction/flags affected/binary form/effect" list in a Romanian book
 called "Ghidul Programatorului ZX Spectrum" ("The ZX Spectrum
 Programmer's Guide").</p>
+        <p>Later, the opcodes was modified to represent the opcodes of 
+the LR35902, a Z80 workalike used in the gameboy.</p>
 	<p>The exact effects and quirks of the
 CB/DD/ED/FD prefixes, as well as the undocumented ED and CB
 instructions, were learnt from "The Undocumented Z80 Documented" by
@@ -678,7 +680,7 @@ with suggestions or corrections. They are mentioned in the following
 section.</p>
 	<hr>
 	<a name="rev"></a>
-	<h2>9. REVISION HISTORY</h2>
+	<h2>5. REVISION HISTORY</h2>
 	<dl>
 		<dt>Revision 1</dt>
 		<dd>Implemented a better representation for the <b>DDCB</b> instructions (thanks to Ven Reddy) and for certain "invalid" <b>ED</b> instructions, e.g. a more accurate <b>NOP</b>/<b>NONI</b> instead of an 8T <b>NOP</b> (thanks to Dr. Phillip Kendall). Fixed some typos.</dd>
@@ -689,6 +691,8 @@ comments and a Revision History section. Fixed some important typos and
 changed the wording in some places to avoid misunderstandings (thanks
 to BlueChip for his numerous and helpful suggestions; he also suggested
 that I add info on the signed number format and byte order).</dd>
+                <dt>Revison 3 (gameboy)</dt>
+                <dd>Alot of opcodes were stripped out to better represent the state of the gameboy's Z80 cpu. A few new ones were added</dd>
 	</dl>
 	<hr>
 	<p style="text-align: center;">- EOF -</p>
