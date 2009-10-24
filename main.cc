@@ -13,13 +13,9 @@ int main() {
   b->attach(new rom(bios, 0x900));
 
   cpu->attachBus(b);
-  cpu->decodeOP(0x0);
-  cpu->decodeOP(0x03);
-  cpu->decodeOP(0x05);
-  cpu->decodeOP(0x7c);
-  cpu->decodeOP(0x7e);
-  cpu->decodeOP(0x80);
-  cpu->decodeOP(0x82);
+  for(int i = 0; i < 256; i++) {
+    cpu->decodeOP(i);
+  }
   return 0;
 }
 

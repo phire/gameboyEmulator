@@ -24,6 +24,7 @@ char* rp2[] = {"bc", "de", "hl", "af"};
 char* r[] = {"b", "c", "d", "e", "h", "l", "(hl)", "a"};
 char* alu[] = {"add a,", "adc a,", "sub", "sbc a,", "and", "xor", "or", "cp"};
 char* cc[] = {"nz", "z", "nc", "c"};
+char* rot[] = {"rlc", "rrc", "rl", "rr", "sla", "sra", "sll", "srl"};
 
 void gz80::decode(uint16_t addr) {
   uint8_t op = b->read(addr);
@@ -76,16 +77,16 @@ void gz80::decode(uint16_t addr) {
       if(q) printf("a, ");
       switch(p) {
         case 0:
-	  printf("(BC)");
+	  printf("(bc)");
 	  break;
 	case 1:
-	  printf("(DE)");
+	  printf("(de)");
 	  break;
 	case 2:
-	  printf("(HL+)");
+	  printf("(hl+)");
 	  break;
 	case 3:
-	  printf("(HL-)");
+	  printf("(hl-)");
 	  break;
       }
       if (!q) printf(", a");
@@ -134,8 +135,7 @@ void gz80::decode(uint16_t addr) {
         printf("ccf");
         break;
       }
-    default:
-      goto unimplemented;
+      break;
     }
     break;
   case 1:
@@ -152,10 +152,7 @@ void gz80::decode(uint16_t addr) {
     switch(z) {
     case 0:
       switch(y) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
+      default:
         printf("ret %s", cc[y]);
 	break;
       case 4:
@@ -168,9 +165,11 @@ void gz80::decode(uint16_t addr) {
 	break;
       case 6:
         printf("ld a, 0xff[%02x]", b->read(addr+1));
+	bytes++;
         break;
       case 7:
         printf("ld hl, (sp%+i)", b->read(addr+1));  //FIXME: make signed
+	bytes++;
         break;
       }
       break;
@@ -178,7 +177,42 @@ void gz80::decode(uint16_t addr) {
       if(q == 0) {
         printf("pop %s", rp2[p]);
       } else {
-        goto unimplemented;
+        switch (p) {
+        case 0:
+	  printf("ret");
+	  break;
+	case 1:
+	  printf("reti");
+	  break;
+	case 2:
+	  printf("jp (hl)");
+	  break;
+	case 3:
+	  printf("ld sp, hl");
+	  break;
+	}
+      }
+      break;
+    case 2:
+      switch (y) {
+      default:
+        printf("jp %s, 0x%02x%02x", cc[y],  b->read(addr+2), b->read(addr+1));
+	bytes = 3;
+        break;
+      case 4:
+        printf("ld 0xff[c], a");
+	break;
+      case 5:
+        printf("ld (0x%02x%02x), a",  b->read(addr+2), b->read(addr+1));
+	bytes = 3;
+	break;
+      case 6:
+        printf("ld a, 0xff[c]");
+        break;
+      case 7:
+        printf("ld a, (0x%02x%02x)",  b->read(addr+2), b->read(addr+1));
+	bytes = 3;
+	break;
       }
       break;
     case 3:
@@ -187,19 +221,54 @@ void gz80::decode(uint16_t addr) {
         printf("jp 0x%02x%02x", b->read(addr+2), b->read(addr+1));
         bytes = 3;
         break;
-      default: goto unimplemented;
+      case 1:
+        bytes++;
+        op = b->read(addr);
+	x = (op >> 6) & 0x3;
+	y = (op >> 3) & 0x7;
+	z = op & 0x7;
+        switch(x) {
+        case 0:
+	  printf("%s %s", rot[y], r[z]);
+	  break;
+	case 1:
+	  printf("bit %i, %s", y, r[z]);
+	  break;
+	case 2:
+	  printf("res %i, %s", y, r[z]);
+	  break;
+	case 3:
+	  printf("set %i, %s", y, r[z]);
+	  break;
+	}
+	break;
+      case 6:
+        printf("di");
+	break;
+      case 7:
+        printf("ei");
+	break;
+      default:
+        printf("(removed)");
       }
-    break;
+      break;
+    case 4:
+      if(y < 4) {
+        printf("call %s, 0x%02x%02x", cc[y], b->read(addr+2), b->read(addr+1));
+	bytes = 3;
+      } else printf("(removed)");
+      break;
     case 5:
-      switch (y) {
+      switch (q) {
       case 0:
         printf("push %s", rp2[p]);
 	break;
       case 1:
-        printf("call 0x%02x%02x",  b->read(addr+2), b->read(addr+1));
-        bytes = 3;
+        if(p == 0) {
+          printf("call 0x%02x%02x", b->read(addr+2), b->read(addr+1));
+          bytes = 3;
+	} else printf("(removed)");
         break;
-      default: goto unimplemented;
       }
       break;
     case 6:

@@ -4,6 +4,7 @@
 #include "op.h"
 class gz80op : public OP {
   public:
+  gz80op();
   string toString();
   int next();
   int size();
