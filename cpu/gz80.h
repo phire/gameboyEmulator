@@ -26,6 +26,7 @@ private:
  void write_a(uint8_t);
  uint8_t read_a();
  
+ uint8_t zero();
  void setZero(bool);
  uint8_t carry();
 
