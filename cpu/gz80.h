@@ -22,8 +22,13 @@ private:
  uint16_t hl;
  uint16_t sp;
  void write_r(uint8_t, uint8_t);
-
+ uint8_t read_r(uint8_t);
+ void write_a(uint8_t);
+ uint8_t read_a();
  
+ void setZero(bool);
+ uint8_t carry();
+
  uint16_t* rp_[4];
 
  bus *b;

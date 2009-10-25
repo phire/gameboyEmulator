@@ -51,6 +51,55 @@ void gz80::write_r(uint8_t r, uint8_t v) {
 
 }
 
+uint8_t gz80::read_r(uint8_t r) {
+  switch(r) {
+  case 0: // b
+    return bc >> 8;
+    break;
+  case 1: // c
+    return bc & 0xff;
+    break;
+  case 2: // d
+    return de >> 8;
+    break;
+  case 3: // e
+    return de & 0xff;
+    break;
+  case 4: // h
+    return hl >> 8;
+    break;
+  case 5: // l
+    return hl & 0xff;
+    break;
+  case 6: // (hl)
+    return b->read(hl);
+    break;
+  case 7: // a
+    return af >> 8;
+  }
+  return 0;
+}
+
+uint8_t gz80::read_a() {
+  return af >> 8;
+}
+
+void gz80::write_a(uint8_t v) {
+  af = (af & 0xff) | v << 8;
+}
+
+uint8_t gz80::carry() {
+  return af && 0x1;
+}
+
+void gz80::setZero(bool v) {
+  af = (af & 0xbf) | v << 6; 
+}
+
+uint8_t gz80::zero() {
+  return af & 0x40;
+}
+
 const char* rp[] = {"bc", "de", "hl", "sp"};
 const char* rp2[] = {"bc", "de", "hl", "af"};
 const char* r[] = {"b", "c", "d", "e", "h", "l", "(hl)", "a"};
@@ -61,6 +110,7 @@ const char* rot[] = {"rlc", "rrc", "rl", "rr", "sla", "sra", "sll", "srl"};
 void gz80::execute() {
   uint8_t op = b->read(pc);
   int addr = pc;
+  int val;
 
   uint8_t x = (op >> 6) & 0x3;
   uint8_t y = (op >> 3) & 0x7;
@@ -108,23 +158,39 @@ void gz80::execute() {
       }
       break;
     case 2:
-      printf("ld ");
-      if(q) printf("a, ");
-      switch(p) {
-        case 0:
-	  printf("(bc)");
+      if(q) switch(p) { // ld a, xx
+        case 0: // bc
+	  write_a(b->read(bc));
 	  break;
-	case 1:
-	  printf("(de)");
+	case 1: // de
+	  write_a(b->read(de));
 	  break;
-	case 2:
-	  printf("(hl+)");
+	case 2: // hl+
+	  write_a(b->read(hl));
+	  hl++;
 	  break;
-	case 3:
-	  printf("(hl-)");
+	case 3: // hl-
+	  write_a(b->read(hl));
+	  hl--;
 	  break;
       }
-      if (!q) printf(", a");
+      else switch(p) { // ld xx, a
+        case 0: // bc
+	  b->write(bc, read_a());
+	  break;
+	case 1: //de
+	  b->write(de, read_a());
+	  break;
+	case 2: //hl+
+	  b->write(hl, read_a());
+	  hl++;
+	  break;
+	case 3: //hl-
+	  b->write(hl, read_a());
+	  hl--;
+	  break;
+      }
+      pc++;
       break;
     case 3:
       if(q == 0) {
@@ -133,11 +199,15 @@ void gz80::execute() {
         printf("dec %s", rp[p]);
       }
       break;
-    case 4:
-      printf("inc %s", r[y]);
+    case 4: // inc r[y]
+      write_r(y, read_r(y) + 1);
+      pc++;
       break;
-    case 5:
-      printf("dec %s", r[y]);
+    case 5: // dec r[y]
+      val =  read_r(y) - 1;
+      setZero(!val);
+      write_r(y, val);
+      pc++;
       break;
     case 6: //ld r[y], n
       write_r(y, b->read(pc + 1));
@@ -160,8 +230,8 @@ void gz80::execute() {
       case 4:
         printf("dda");
         break;
-      case 5:
-        printf("cpl");
+      case 5: // cpl
+        write_a(read_a() ^ 0xff);
         break;
       case 6:
         printf("scf");
@@ -170,6 +240,7 @@ void gz80::execute() {
         printf("ccf");
         break;
       }
+      pc++;
       break;
     }
     break;
@@ -180,8 +251,34 @@ void gz80::execute() {
       printf("ld %s, %s", r[y], r[z]);
     }
     break;
-  case 2:
-    printf("%s %s", alu[y], r[z]);
+  case 2: // alu[y], r[z] TODO:flags
+    switch (y){
+    case 0: // add a,
+      write_a(read_a() + read_r(z));
+      break;
+    case 1: // adc a,
+      write_a(read_a() + read_r(z) + carry());
+      break;
+    case 2: // sub
+      write_a(read_a() - read_r(z));
+      break;
+    case 3: // sbc a,
+      write_a(read_a() - (read_r(z) + carry()));
+      break;
+    case 4: // and
+      write_a(read_a() & read_r(z));
+      break;
+    case 5: // xor
+      write_a(read_a() ^ read_r(z));
+      break;
+    case 6: // or
+      write_a(read_a() | read_r(z));
+      break;
+    case 7: // cp
+      // flags only
+      break;
+    }
+    pc++;
     break;
   case 3:
     switch(z) {

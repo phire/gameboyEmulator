@@ -14,7 +14,7 @@ int main() {
   b->attach(new rom(bios, 0x900));
 
   cpu->attachBus(b);
-  for(int i = 0; i < 20; i++) {
+  for(int i = 0; i < 40; i++) {
     cpu->decodeOP();
     cpu->execute();
   }
