@@ -19,12 +19,12 @@ void gz80::attachBus(bus *bus) {
 }
 
 
-char* rp[] = {"bc", "de", "hl", "sp"};
-char* rp2[] = {"bc", "de", "hl", "af"};
-char* r[] = {"b", "c", "d", "e", "h", "l", "(hl)", "a"};
-char* alu[] = {"add a,", "adc a,", "sub", "sbc a,", "and", "xor", "or", "cp"};
-char* cc[] = {"nz", "z", "nc", "c"};
-char* rot[] = {"rlc", "rrc", "rl", "rr", "sla", "sra", "sll", "srl"};
+const char* rp[] = {"bc", "de", "hl", "sp"};
+const char* rp2[] = {"bc", "de", "hl", "af"};
+const char* r[] = {"b", "c", "d", "e", "h", "l", "(hl)", "a"};
+const char* alu[] = {"add a,", "adc a,", "sub", "sbc a,", "and", "xor", "or", "cp"};
+const char* cc[] = {"nz", "z", "nc", "c"};
+const char* rot[] = {"rlc", "rrc", "rl", "rr", "sla", "sra", "sll", "srl"};
 
 void gz80::decode(uint16_t addr) {
   uint8_t op = b->read(addr);
