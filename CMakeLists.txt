@@ -4,7 +4,7 @@ project(GameboyEmulator)
 set(CMAKE_CXX_FLAGS "-g -Wall")
 
 add_library(gz80 cpu/gz80.cc)
-add_library(memory mem/bus.cc mem/rom.cc)
+add_library(memory mem/bus.cc mem/rom.cc mem/ram.cc)
 
 add_executable(emu main.cc)
 

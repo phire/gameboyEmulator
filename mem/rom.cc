@@ -10,7 +10,6 @@ rom::rom(std::ifstream& file, int size) {
 }
 
 int rom::read(int address) {
-  return address & 0xff;
   if(address < romsize)
     return data[address];
   return 0x00;
